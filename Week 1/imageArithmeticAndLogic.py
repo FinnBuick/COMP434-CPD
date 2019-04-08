@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 # Load two images
-img1 = cv2.imread('3D-Matplotlib.png')
-img2 = cv2.imread('mainlogo.png')
+img1 = cv2.imread('Week 1\\3D-Matplotlib.png')
+img2 = cv2.imread('Week 1\\mainlogo.png')
 
 # I want to put logo on top-left corner, So I create a ROI
 rows,cols,channels = img2.shape

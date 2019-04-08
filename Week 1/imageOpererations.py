@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-img = cv2.imread('watch.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('Week 1\\watch.jpg', cv2.IMREAD_COLOR)
 
 px = img[55,55]
 img[55,55] = [255,255,255]
