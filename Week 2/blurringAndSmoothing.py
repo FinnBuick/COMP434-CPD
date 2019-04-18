@@ -33,7 +33,7 @@ while True:
     #cv2.imshow('mask', mask)
     cv2.imshow('result', res)
     #cv2.imshow('Averaging',smoothed)
-    #cv2.imshow('Gaussian Blurring',blur)
+    cv2.imshow('Gaussian Blurring',blur)
     #cv2.imshow('Median Blur',median)
     cv2.imshow('bilateral Blur',bilateral)
 
