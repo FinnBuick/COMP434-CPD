@@ -3,6 +3,8 @@ import numpy as np
 
 cap = cv2.VideoCapture(0)
 
+face_cascade = cv2.CascadeClassifier('Week 4\\haarcascade_frontalface_default.xml')
+
 # def nothing(x):
 #     pass
 #
@@ -15,10 +17,17 @@ cap = cv2.VideoCapture(0)
 # cv2.createTrackbar('U - S', 'Trackbars', 0, 255, nothing)
 # cv2.createTrackbar('U - V', 'Trackbars', 0, 255, nothing)
 
-while(True):
+while True:
     ret, frame = cap.read()
     # Convert from BGR to Gray
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Detect face and remove it from the image
+    faces = face_cascade.detectMultiScale(gray, 1.05, 5)
+
+    for (x, y, w, h) in faces:
+        cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
 
     # l_h = cv2.getTrackbarPos('L - H', "Trackbars")
     # l_s = cv2.getTrackbarPos('L - S', "Trackbars")
@@ -40,15 +49,36 @@ while(True):
 
     kernel = np.ones((5,5),np.uint8)
     mask = cv2.dilate(mask,kernel,iterations = 1)
-
     mask = cv2.GaussianBlur(mask, (5,5), 100)
+    res = cv2.bitwise_and(frame,frame, mask = mask)
 
     frame2, contours, hierachy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    res = cv2.bitwise_and(frame,frame, mask = mask)
+    if len(contours) != 0:
+        # draw contours in blue
+        cv2.drawContours(res, contours, -1, (255,0,0), 2)
 
-    # draw contours
-    cv2.drawContours(res, contours, -1, (0,0,255), 2)
+        # Find the biggest area
+        max_contour = max(contours, key = cv2.contourArea)
+
+        # Draw bounding rect
+        x,y,w,h = cv2.boundingRect(max_contour)
+        cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
+
+        # Find the convex hull
+
+        hull = cv2.convexHull(max_contour, returnPoints = False)
+        defects = cv2.convexityDefects(max_contour, hull)
+
+        if defects is not None:
+            for i in range(defects.shape[0]):
+                s,e,f,d = defects[i,0]
+                start = tuple(max_contour[s][0])
+                end = tuple(max_contour[e][0])
+                far = tuple(max_contour[f][0])
+                cv2.line(frame,start,end,[0,255,0],2)
+                cv2.circle(frame,far,5,[0,0,255],-1)
+
 
     cv2.imshow('frame', frame)
     cv2.imshow('res', res)
