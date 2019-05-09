@@ -18,10 +18,8 @@ face_cascade = cv2.CascadeClassifier('Week 4\\haarcascade_frontalface_default.xm
 # cv2.createTrackbar('U - S', 'Trackbars', 0, 255, nothing)
 # cv2.createTrackbar('U - V', 'Trackbars', 0, 255, nothing)
 
-def colorFilter(hsv):
-    lower_red = np.array([0,61,112])
-    upper_red = np.array([36,180,255])
-    mask = cv2.inRange(hsv, lower_red, upper_red)
+def colorFilter(hsv, lower = np.array([0,94,126]),upper = np.array([17,154,255])):
+    mask = cv2.inRange(hsv, lower, upper)
     return mask
 
 def defectAngle(start, end, far):
@@ -49,7 +47,7 @@ def countFingers(contour):
             cv2.line(frame,start,end,[255,0,0],2)
             cv2.circle(frame,far,5,[0,0,255],-1)
 
-            if d > 10000 and angle <= math.pi/2:
+            if d > 5000 and angle <= math.pi/2:
                 count+=1
 
         """Use the distance between the highest point of the contour and the
@@ -71,9 +69,9 @@ while True:
     # Detect face and remove it from the image
     faces = face_cascade.detectMultiScale(gray, 1.05, 5)
 
-    for (x, y, w, h) in faces:
-        cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
-
+    # for (x, y, w, h) in faces:
+    #     cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
+    #
     # l_h = cv2.getTrackbarPos('L - H', "Trackbars")
     # l_s = cv2.getTrackbarPos('L - S', "Trackbars")
     # l_v = cv2.getTrackbarPos('L - V', "Trackbars")
@@ -81,8 +79,8 @@ while True:
     # u_s = cv2.getTrackbarPos('U - S', "Trackbars")
     # u_v = cv2.getTrackbarPos('U - V', "Trackbars")
     #
-    #
-    # # HSV hue sat value
+    # #
+    # # # HSV hue sat value
     # lower_red = np.array([l_h,l_s,l_v])
     # upper_red = np.array([u_h,u_s,u_v])
 
