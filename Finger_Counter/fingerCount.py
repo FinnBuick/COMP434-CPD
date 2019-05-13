@@ -63,8 +63,20 @@ def countFingers(contour):
 def drawRects(frame):
     rows, columns, _ = frame.shape
 
-    print(rows)
-    print(columns)
+    top_left_x = np.array([
+    12 * rows / 20, 12 * rows / 20, 12 * rows / 20,
+    15 * rows / 20, 15 * rows / 20, 15 * rows / 20], dtype=np.uint32)
+
+    top_left_y = np.array([
+    4 * columns / 20, 6 * columns / 20, 8 * columns / 20,
+    4 * columns / 20, 6 * columns / 20, 8 * columns / 20], dtype=np.uint32)
+
+    bottom_right_x = top_left_x + 10
+    bottom_right_y = top_left_y + 10
+
+    for i in range(6):
+        cv2.rectangle(frame, (top_left_x[i], top_left_y[i]),
+        (bottom_right_x[i], bottom_right_y[i]), (255,255,255), 1)
 
 while True:
     ret, frame = cap.read()
@@ -89,6 +101,9 @@ while True:
     # # # HSV hue sat value
     # lower_red = np.array([l_h,l_s,l_v])
     # upper_red = np.array([u_h,u_s,u_v])
+
+    if cv2.waitKey(1) & 0xFF == ord('s'):
+        drawRects(frame)
 
     # Create a mask for pixel within the upper and lower bounds
     mask = colorFilter(hsv)
