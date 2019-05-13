@@ -60,6 +60,12 @@ def countFingers(contour):
         return True, count
     return False, 0
 
+def drawRects(frame):
+    rows, columns, _ = frame.shape
+
+    print(rows)
+    print(columns)
+
 while True:
     ret, frame = cap.read()
     # Convert from BGR to Gray
@@ -69,9 +75,9 @@ while True:
     # Detect face and remove it from the image
     faces = face_cascade.detectMultiScale(gray, 1.05, 5)
 
-    # for (x, y, w, h) in faces:
-    #     cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
-    #
+    for (x, y, w, h) in faces:
+        cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
+
     # l_h = cv2.getTrackbarPos('L - H', "Trackbars")
     # l_s = cv2.getTrackbarPos('L - S', "Trackbars")
     # l_v = cv2.getTrackbarPos('L - V', "Trackbars")
@@ -119,5 +125,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+drawRects(frame)
 cap.release()
 cv2.destroyAllWindows()
