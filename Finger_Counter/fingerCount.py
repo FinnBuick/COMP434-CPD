@@ -18,9 +18,13 @@ face_cascade = cv2.CascadeClassifier('Week 4\\haarcascade_frontalface_default.xm
 # cv2.createTrackbar('U - S', 'Trackbars', 0, 255, nothing)
 # cv2.createTrackbar('U - V', 'Trackbars', 0, 255, nothing)
 
-def colorFilter(hsv, lower = np.array([0,94,126]),upper = np.array([17,154,255])):
-    mask = cv2.inRange(hsv, lower, upper)
-    return mask
+def colorFilter(frame, hist):
+    if hist is not None:
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        backproj = cv2.calcBackProject([hsv], [0,1], hist, [0, 180, 0, 256], 1)
+        ret, thresh = cv2.threshold(backproj, 150, 255, cv2.THRESH_BINARY)
+        thresh = cv2.merge((thresh, thresh, thresh))
+        return cv2.bitwise_and(frame, thresh)
 
 def defectAngle(start, end, far):
     """Calculate angle of defect using cosine rule"""
@@ -60,9 +64,12 @@ def countFingers(contour):
         return True, count
     return False, 0
 
-def drawRects(frame):
+def skinHistogram(hsv):
     rows, columns, _ = frame.shape
 
+    num_rects = 6
+
+    # Draw the rectangles to indicate hand placement
     top_left_x = np.array([
     12 * rows / 20, 12 * rows / 20, 12 * rows / 20,
     15 * rows / 20, 15 * rows / 20, 15 * rows / 20], dtype=np.uint32)
@@ -74,9 +81,19 @@ def drawRects(frame):
     bottom_right_x = top_left_x + 10
     bottom_right_y = top_left_y + 10
 
-    for i in range(6):
+    for i in range(num_rects):
         cv2.rectangle(frame, (top_left_x[i], top_left_y[i]),
         (bottom_right_x[i], bottom_right_y[i]), (255,255,255), 1)
+
+
+    roi = np.zeros([60, 10, 3], dtype=hsv.dtype)
+
+    for i in range(num_rects):
+        roi[i * 10: i * 10 + 10, 0: 10] = hsv[top_left_x[i]:top_left_x[i] + 10, top_left_y[i]:top_left_y[i] + 10]
+
+    skin_hist = cv2.calcHist([roi], [0, 1], None, [180, 256], [0, 180, 0, 256])
+
+    return cv2.normalize(skin_hist, skin_hist, 0, 255, cv2.NORM_MINMAX)
 
 while True:
     ret, frame = cap.read()
@@ -101,12 +118,12 @@ while True:
     # # # HSV hue sat value
     # lower_red = np.array([l_h,l_s,l_v])
     # upper_red = np.array([u_h,u_s,u_v])
-
+    hist = None
     if cv2.waitKey(1) & 0xFF == ord('s'):
-        drawRects(frame)
+        hist = skinHistogram(hsv)
 
     # Create a mask for pixel within the upper and lower bounds
-    mask = colorFilter(hsv)
+    mask = colorFilter(frame, hist)
 
     # Preprocessing the mask for contour finding
     kernel = np.ones((5,5), np.uint8)
