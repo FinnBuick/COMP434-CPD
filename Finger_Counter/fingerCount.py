@@ -6,17 +6,17 @@ cap = cv2.VideoCapture(0)
 
 face_cascade = cv2.CascadeClassifier('Week 4\\haarcascade_frontalface_default.xml')
 
-# def nothing(x):
-#     pass
-#
-# cv2.namedWindow('Trackbars')
-#
-# cv2.createTrackbar('L - H', 'Trackbars', 0, 179, nothing)
-# cv2.createTrackbar('L - S', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('L - V', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('U - H', 'Trackbars', 0, 179, nothing)
-# cv2.createTrackbar('U - S', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('U - V', 'Trackbars', 0, 255, nothing)
+def nothing(x):
+    pass
+
+cv2.namedWindow('Trackbars')
+
+cv2.createTrackbar('L - H', 'Trackbars', 0, 179, nothing)
+cv2.createTrackbar('L - S', 'Trackbars', 47, 255, nothing)
+cv2.createTrackbar('L - V', 'Trackbars', 96, 255, nothing)
+cv2.createTrackbar('U - H', 'Trackbars', 29, 179, nothing)
+cv2.createTrackbar('U - S', 'Trackbars', 129, 255, nothing)
+cv2.createTrackbar('U - V', 'Trackbars', 255, 255, nothing)
 
 def colorFilter(hsv, lower = np.array([0,94,126]),upper = np.array([17,154,255])):
     mask = cv2.inRange(hsv, lower, upper)
@@ -33,16 +33,16 @@ def defectAngle(start, end, far):
 def countFingers(contour):
     """Takes a countour and performs finger detection on it by counting the
     number of convexity defects"""
-    hull = cv2.convexHull(max_contour, returnPoints = False)
-    defects = cv2.convexityDefects(max_contour, hull)
+    hull = cv2.convexHull(contour, returnPoints = False)
+    defects = cv2.convexityDefects(contour, hull)
     count = 0
     if defects is not None:
         highest_point = (0,0)
         for i in range(defects.shape[0]):
             s,e,f,d = defects[i,0]
-            start = tuple(max_contour[s][0])
-            end = tuple(max_contour[e][0])
-            far = tuple(max_contour[f][0])
+            start = tuple(contour[s][0])
+            end = tuple(contour[e][0])
+            far = tuple(contour[f][0])
             angle = defectAngle(start, end, far)
             cv2.line(frame,start,end,[255,0,0],2)
             cv2.circle(frame,far,5,[0,0,255],-1)
@@ -54,7 +54,7 @@ def countFingers(contour):
         center of the bounding rectangle to determine if a single finger is
         being held up"""
         top_point = tuple(max_contour[max_contour[:, :, 1].argmin()][0])
-        if (center[1] - top_point[1]) > 200:
+        if (center[1] - top_point[1]) > 100:
             count+=1
 
         return True, count
@@ -67,25 +67,25 @@ while True:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Detect face and remove it from the image
-    faces = face_cascade.detectMultiScale(gray, 1.05, 5)
-
+    # faces = face_cascade.detectMultiScale(gray, 1.05, 5)
+    #
     # for (x, y, w, h) in faces:
     #     cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
-    #
-    # l_h = cv2.getTrackbarPos('L - H', "Trackbars")
-    # l_s = cv2.getTrackbarPos('L - S', "Trackbars")
-    # l_v = cv2.getTrackbarPos('L - V', "Trackbars")
-    # u_h = cv2.getTrackbarPos('U - H', "Trackbars")
-    # u_s = cv2.getTrackbarPos('U - S', "Trackbars")
-    # u_v = cv2.getTrackbarPos('U - V', "Trackbars")
-    #
-    # #
-    # # # HSV hue sat value
-    # lower_red = np.array([l_h,l_s,l_v])
-    # upper_red = np.array([u_h,u_s,u_v])
+
+    l_h = cv2.getTrackbarPos('L - H', "Trackbars")
+    l_s = cv2.getTrackbarPos('L - S', "Trackbars")
+    l_v = cv2.getTrackbarPos('L - V', "Trackbars")
+    u_h = cv2.getTrackbarPos('U - H', "Trackbars")
+    u_s = cv2.getTrackbarPos('U - S', "Trackbars")
+    u_v = cv2.getTrackbarPos('U - V', "Trackbars")
+
+
+    # HSV hue sat value
+    lower_red = np.array([l_h,l_s,l_v])
+    upper_red = np.array([u_h,u_s,u_v])
 
     # Create a mask for pixel within the upper and lower bounds
-    mask = colorFilter(hsv)
+    mask = colorFilter(hsv, lower_red, upper_red)
 
     # Preprocessing the mask for contour finding
     kernel = np.ones((5,5), np.uint8)
@@ -116,7 +116,7 @@ while True:
     cv2.imshow('frame', frame)
     cv2.imshow('res', res)
     cv2.imshow('mask', mask)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == 27:
         break
 
 cap.release()
