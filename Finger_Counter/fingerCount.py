@@ -8,18 +8,6 @@ cap = cv2.VideoCapture(0)
 
 face_cascade = cv2.CascadeClassifier('Week 4\\haarcascade_frontalface_default.xml')
 
-# def nothing(x):
-#     pass
-#
-# cv2.namedWindow('Trackbars')
-#
-# cv2.createTrackbar('L - H', 'Trackbars', 0, 179, nothing)
-# cv2.createTrackbar('L - S', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('L - V', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('U - H', 'Trackbars', 0, 179, nothing)
-# cv2.createTrackbar('U - S', 'Trackbars', 0, 255, nothing)
-# cv2.createTrackbar('U - V', 'Trackbars', 0, 255, nothing)
-
 def histMasking(frame, hist):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     backproj = cv2.calcBackProject([hsv], [0,1], hist, [0, 180, 0, 256], 1)
@@ -124,18 +112,6 @@ def main():
 
         for (x, y, w, h) in faces:
             cv2.rectangle(hsv, (x,y-40), (x+w, y+h+40), (0,0,0), -1)
-
-        # l_h = cv2.getTrackbarPos('L - H', "Trackbars")
-        # l_s = cv2.getTrackbarPos('L - S', "Trackbars")
-        # l_v = cv2.getTrackbarPos('L - V', "Trackbars")
-        # u_h = cv2.getTrackbarPos('U - H', "Trackbars")
-        # u_s = cv2.getTrackbarPos('U - S', "Trackbars")
-        # u_v = cv2.getTrackbarPos('U - V', "Trackbars")
-        #
-        # #
-        # # # HSV hue sat value
-        # lower_red = np.array([l_h,l_s,l_v])
-        # upper_red = np.array([u_h,u_s,u_v])
 
         if cv2.waitKey(1) & 0xFF == ord('s'):
             hist_created = True
